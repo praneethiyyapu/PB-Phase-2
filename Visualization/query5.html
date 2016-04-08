@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.bubble{
+position:relative;
+left:270px;
+bottom:60px;
+}
+	.btn{
+	position:relative;
+	top:30px;
+	left:130px;
+	margin-right:50px;
+}
+
+
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<body>
+
+<div>
+<a href="query1.html"><button type="button" class="btn btn-primary">Query1</button></a>
+<a href="query2.html"><button type="button" class="btn btn-primary">Query2</button></a>
+<a href="query3.html"><button type="button" class="btn btn-primary">Query3</button></a>
+<a href="query4.html"><button type="button" class="btn btn-primary">Query4</button></a>
+<a href="query5.html"><button type="button" class="btn btn-primary">Query5</button></a>
+<a href="query6.html"><button type="button" class="btn btn-primary">Query6</button></a>
+<a href="query7.html"><button type="button" class="btn btn-primary">Query7</button></a>
+<a href="query8.html"><button type="button" class="btn btn-primary">Query8</button></a>
+<br><br><br><br><br><br><br>
+
+</div>  
+<script src="script/d3.v3.min.js"></script>
+<script>
+
+var diameter = 600, //max size of the bubbles
+    color    = d3.scale.category20b(); //color category
+
+var bubble = d3.layout.pack()
+    .sort(null)
+    .size([diameter, diameter])
+    .padding(1.5);
+
+var svg = d3.select("body")
+    .append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+    .attr("class", "bubble");
+
+d3.csv("csv/query5.csv", function(error, data){
+
+    //convert numerical values from strings to numbers
+    data = data.map(function(d){ d.value = +d["NumberOfUsers"]; return d; });
+
+    //bubbles needs very specific format, convert data to this.
+    var nodes = bubble.nodes({children:data}).filter(function(d) { return !d.children; });
+
+    //setup the chart
+    var bubbles = svg.append("g")
+        .attr("transform", "translate(0		,0)")
+        .selectAll(".bubble")
+        .data(nodes)
+        .enter();
+
+    //create the bubbles
+    bubbles.append("circle")
+        .attr("r", function(d){ return d.r; })
+        .attr("cx", function(d){ return d.x; })
+        .attr("cy", function(d){ return d.y; })
+        .style("fill", function(d) { return color(d.value); });
+
+    //format the text for each bubble
+    bubbles.append("text")
+        .attr("x", function(d){ return d.x; })
+        .attr("y", function(d){ return d.y + 5; })
+        .attr("text-anchor", "middle")
+        .text(function(d){ return d["location"]; })
+        .style({
+            "fill":"white", 
+            "font-family":"Helvetica Neue, Helvetica, Arial, san-serif",
+            "font-size": "12px"
+        });
+})
+
+</script>

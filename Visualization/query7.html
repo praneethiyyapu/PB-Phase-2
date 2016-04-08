@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  position: relative;
+}
+
+.axis text {
+  font: 13px sans-serif;
+  fill:#800000;
+  font-weight:bold;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+  fill-opacity: .9;
+}
+
+.x.axis path {
+  display: none;
+}
+
+label {
+  position: absolute;
+  top: 35px;
+  right: 20px;
+  font: 14px sans-serif;
+  color:white;
+  font-weight:bold;
+}
+	.btn{
+	position:relative;
+	top:30px;
+	left:130px;
+	margin-right:50px;
+}
+
+
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<body>
+	<div>
+<a href="query1.html"><button type="button" class="btn btn-primary">Query1</button></a>
+<a href="query2.html"><button type="button" class="btn btn-primary">Query2</button></a>
+<a href="query3.html"><button type="button" class="btn btn-primary">Query3</button></a>
+<a href="query4.html"><button type="button" class="btn btn-primary">Query4</button></a>
+<a href="query5.html"><button type="button" class="btn btn-primary">Query5</button></a>
+<a href="query6.html"><button type="button" class="btn btn-primary">Query6</button></a>
+		<a href="query7.html"><button type="button" class="btn btn-primary">Query7</button></a>
+		<a href="query8.html"><button type="button" class="btn btn-primary">Query8</button></a>
+<br><br><br><br><br><br><br>
+
+</div>
+
+<label><input type="checkbox"> Sort values</label>
+<script src="script/d3.v3.min.js"></script>
+<script>
+
+var margin = {top: 20, right: 20, bottom: 30, left: 240},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var formatPercent = d3.format(".0");
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1, 1);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(formatPercent);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("csv/query7.csv", function(error, data) {
+
+  data.forEach(function(d) {
+    d.total_count = +d.total_count;
+  });
+
+  x.domain(data.map(function(d) { return d.DAY; }));
+  y.domain([0, d3.max(data, function(d) { return d.total_count; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 9)
+      .attr("dy", ".71em")
+	  //.attr("fill","#0072C6")
+      .style("text-anchor", "end")
+      .text("total_count");
+
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.DAY); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.total_count); })
+      .attr("height", function(d) { return height - y(d.total_count); });
+
+  d3.select("input").on("change", change);
+
+  var sortTimeout = setTimeout(function() {
+    d3.select("input").property("checked", true).each(change);
+  }, 2000);
+
+  function change() {
+    clearTimeout(sortTimeout);
+
+    // Copy-on-write since tweens are evaluated after a delay.
+    var x0 = x.domain(data.sort(this.checked
+        ? function(a, b) { return b.total_count - a.total_count; }
+        : function(a, b) { return d3.ascending(a.DAY, b.DAY); })
+        .map(function(d) { return d.DAY; }))
+        .copy();
+
+    svg.selectAll(".bar")
+        .sort(function(a, b) { return x0(a.DAY) - x0(b.DAY); });
+
+    var transition = svg.transition().duration(750),
+        delay = function(d, i) { return i * 50; };
+
+    transition.selectAll(".bar")
+        .delay(delay)
+        .attr("x", function(d) { return x0(d.DAY); });
+
+    transition.select(".x.axis")
+        .call(xAxis)
+      .selectAll("g")
+        .delay(delay);
+  }
+});
+
+</script>

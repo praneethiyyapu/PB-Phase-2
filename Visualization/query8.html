@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.arc text {
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+.arc path {
+  stroke: #fff;
+}
+.btn{
+	position:relative;
+	top:30px;
+	left:130px;
+	margin-right:50px;
+}
+body {
+    background-impopular_tags: url(cricket.jpg);
+    background-position: center top;
+    background-size: 100% auto;
+}
+</style>
+<div>
+<a href="query1.html"><button type="button" class="btn btn-primary">Query1</button></a>
+<a href="query2.html"><button type="button" class="btn btn-primary">Query2</button></a>
+<a href="query3.html"><button type="button" class="btn btn-primary">Query3</button></a>
+<a href="query4.html"><button type="button" class="btn btn-primary">Query4</button></a>
+<a href="query5.html"><button type="button" class="btn btn-primary">Query5</button></a>
+<a href="query6.html"><button type="button" class="btn btn-primary">Query6</button></a>
+<a href="query7.html"><button type="button" class="btn btn-primary">Query7</button></a>
+<a href="query8.html"><button type="button" class="btn btn-primary">Query8</button></a>
+<br><br><br><br><br><br><br>
+
+</div>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<body>
+
+
+
+<script src="script/d3.v3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500,
+    radius = Math.min(width, height) / 2;
+
+var color = d3.scale.ordinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var arc = d3.svg.arc()
+    .outerRadius(radius - 10)
+    .innerRadius(radius - 70);
+
+var pie = d3.layout.pie()
+    .sort(null)
+    .value(function(d) { return d.total_count; });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 1.65 + "," + height / 2 + ")");
+
+d3.csv("csv/query8.csv", type, function(error, data) {
+  if (error) throw error;
+
+  var g = svg.selectAll(".arc")
+      .data(pie(data))
+    .enter().append("g")
+      .attr("class", "arc");
+  g.append("path")
+      .attr("d", arc)
+      .style("fill", function(d) { return color(d.data.popular_tags); });
+
+  g.append("text")
+      .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .text(function(d) { return d.data.popular_tags; });
+});
+
+function type(d) {
+  d.total_count = +d.total_count;
+  return d;
+}
+
+</script>

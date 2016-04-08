@@ -1,0 +1,11 @@
+val sqlContext = new org.apache.spark.sql.SQLContext(sc);
+val tweets = sqlContext.read.json("/home/sri/cricDB.json");
+tweets.registerTempTable("tweets");
+val query1 = sqlContext.sql("Select user.time_zone AS timezone,count(user.time_zone) AS timezoneCount from tweets GROUP BY user.time_zone ORDER BY count(user.time_zone) desc limit 8").save("/home/sri/PB/Json/Output1","json");
+val query2 = sqlContext.sql("SELECT lang AS lang, count(*) AS count from tweets GROUP BY lang HAVING (lang <> 'en' AND  lang <> 'und') ORDER BY count desc limit 8").save("/home/sri/PB/Json/Output2","json");
+val query3 = sqlContext.sql("SELECT possibly_sensitive as Is_sensitive, count(*) as count from tweets WHERE possibly_sensitive = false OR possibly_sensitive = true GROUP BY possibly_sensitive").save("/home/sri/PB/Json/Output3","json");
+val query4 = sqlContext.sql("select user.name as username, max (user.followers_count) as followers from tweets WHERE user.verified = false GROUP BY user.name ORDER BY followers DESC limit 8").save("/home/sri/PB/Json/Output4","json");
+val query5 = sqlContext.sql("Select user.location, count(user.id) as NumberOfUsers from tweets WHERE user.location is NOT NULL group by user.location order by count(user.id) desc limit 20").save("/home/sri/PB/Json/Output5","json");
+val query6 = sqlContext.sql("SELECT source, COUNT(*) AS total_count FROM tweets WHERE  source IS NOT NULL GROUP BY source ORDER BY total_count DESC LIMIT 6").save("/home/sri/PB/Json/Output6","json");
+val query7 = sqlContext.sql("Select 'Saturday' AS DAY, count(*) as total_count from tweets where created_at like 'Sat%'").save("/home/sri/PB/Json/Output13","json");
+val query8 = sqlContext.sql("SELECT entities.hashtags[0].text as popular_tags, count(*) as total_count FROM tweets group by entities.hashtags[0].text order by total_count desc limit 8").save("/home/sri/PB/Json/Output16","json");
