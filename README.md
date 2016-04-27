@@ -1,3 +1,3 @@
 # PB-Phase-2
 
-Check out our website at http://217.199.187.192/t20-cricket-worldcup-visualization.com/index.html
+Deployed the application to IBM Bluemix. Check it out at https://cricket-wc-2016-visualization.mybluemix.net/ 
